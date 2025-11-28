@@ -223,14 +223,17 @@ def itinerary_agent(state: TravelGraphState):
     - Verified Locations Found: {json.dumps(state['search_results'], indent=2)}
     
     Your Task:
-    Construct a logical, narrative-driven itinerary using ONLY the verified locations provided above.
+    Construct a logical, narrative-driven itinerary.
     
-    Guidelines:
-    1. **Clean Output:** Do NOT display coordinates (lat/long) or full street addresses in the final text. Just use the venue name.
-    2. **Logical Flow:** Group activities by neighborhood to minimize travel time.
-    3. **Narrative:** Explain *why* each spot fits the '{state['vibe']}' vibe. Write in an engaging, travel-blog style.
-    4. **Gaps:** If you have few verified locations, suggest general activities (e.g. "Walk along the beach") to fill the day, but prioritize the verified spots.
-    5. **Format:** Use clean Markdown with headers for each Day.
+    CRITICAL GUIDELINES:
+    1. **Structure:** For EACH day, you MUST provide distinct sections for **Morning**, **Afternoon**, and **Evening**.
+    2. **Use Verified Data:** Prioritize the "Verified Locations Found". Use their real names.
+    3. **FAILSAFE (Important):** If you do not have enough verified locations to fill a specific time slot (e.g., Evening), you MUST use your general knowledge to suggest a relevant activity. 
+       - Label these clearly as "(General Suggestion)" so the user knows it's a recommendation, not a verified booking.
+       - Do NOT leave any time slot empty.
+       - Also make sure you find restaurants to eat near the places you suggest. And optimize the places so there is no wasted time or distance. 
+    4. **Clean Output:** Do NOT display coordinates (lat/long) or full street addresses. Just use the venue name.
+    5. **Narrative:** Explain *why* each spot fits the '{state['vibe']}' vibe.
     """
     
     response = llm_hero.invoke(prompt)

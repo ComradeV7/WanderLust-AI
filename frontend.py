@@ -112,7 +112,7 @@ if st.session_state["itinerary"]:
 
     # EEDBACK LOOP (Right Column)
     with col2:
-        st.info("💡 **Refine your plan**")
+        st.info(" **Refine your plan**")
         st.markdown("Chat with the agent to tweak the itinerary.")
         
         feedback_text = st.text_area("Your Feedback", placeholder="e.g., I don't like museums, give me more food spots!")
