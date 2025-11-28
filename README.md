@@ -100,9 +100,7 @@ streamlit run frontend.py
 
 ---
 
-## Results
-
-<img width="1840" height="907" alt="image" src="https://github.com/user-attachments/assets/8199d65a-84d7-4ca1-877b-3eea5b6f9ffc" />
+## Result
 
 <img width="1897" height="902" alt="image" src="https://github.com/user-attachments/assets/b4f8134e-ac4d-4f57-bbc8-46f3e150243b" />
 
