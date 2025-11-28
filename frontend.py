@@ -54,7 +54,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("Wanderlust AI")
-st.markdown("#### *Your Intelligent, Hyper-Local Travel Consultant*")
+st.markdown("#### *Your Intelligent Travel Consultant*")
 st.markdown("---")
 
 # SIDEBAR INPUTS
