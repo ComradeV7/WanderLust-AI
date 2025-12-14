@@ -49,7 +49,7 @@ The system is stateful. It pauses after generating a draft, allowing the user to
 
 Wanderlust AI uses a multi-model architecture to solve this:
 * **The Brain (Reasoning):** **Llama 3.3 70B** (via Groq) handles cultural nuance, vibe interpretation, and itinerary synthesis.
-* **The Hands (Tools):** **Gemini 1.5 Flash** (via Google) handles high-speed, high-volume tool calling and data structuring.
+* **The Hands (Tools):** **Gemini 2.5 Flash** (via Google) handles high-speed, high-volume tool calling and data structuring.
 * **The Map (Ground Truth):** **Nominatim (OpenStreetMap)** & **OpenRouteService** provide geospatial verification and routing.
 
 The system is built on **LangGraph** with a sequential flow:
