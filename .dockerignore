@@ -8,3 +8,12 @@ __pycache__/
 *.pyc
 
 .ipynb_checkpoints/
+agent-dev.ipynb
+
+tests/
+evals/
+.github/
+.pytest_cache/
+coverage.xml
+htmlcov/
+README.md
