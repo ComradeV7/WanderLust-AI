@@ -1,7 +1,18 @@
 import os
 import json
 import time
+import logging
 from dotenv import load_dotenv
+
+# ---------------------------------------------------------------------------
+# OBSERVABILITY: Structured logging
+# ---------------------------------------------------------------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+)
+logger = logging.getLogger("wanderlust")
 import openrouteservice
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
@@ -49,14 +60,14 @@ def query_places_nominatim(query: str, location_name: str):
     """
     Smart search that adapts its radius based on the city's 'Importance'.
     """
-    print(f"--- TOOL: Searching for '{query}' around '{location_name}' ---")
+    logger.info("[tool:nominatim] Searching for '%s' around '%s'", query, location_name)
     
     try:
         # Get City Details & "Importance"
         # The 'importance' field (0.0 to 1.0) tells us if it's a Megacity or Town
         city_loc = geolocator.geocode(location_name, timeout=10, addressdetails=True)
         if not city_loc:
-            print(f"   > Error: Target city '{location_name}' not found.")
+            logger.warning("[tool:nominatim] City not found: '%s'", location_name)
             return []
         
         city_coords = (city_loc.latitude, city_loc.longitude)
@@ -67,10 +78,10 @@ def query_places_nominatim(query: str, location_name: str):
         # If importance <= 0.75 (Visakhapatnam, Bath), use large radius (Day trips allowed)
         if importance > 0.75:
             radius_limit = 30  # Strict city limit
-            print(f"   > Detected MEGACITY (Score: {importance}). Radius set to {radius_limit}km.")
+            logger.info("[tool:nominatim] MEGACITY detected (importance=%.2f) → radius=%dkm", importance, radius_limit)
         else:
             radius_limit = 200 # Allow day trips
-            print(f"   > Detected REGIONAL HUB (Score: {importance}). Radius set to {radius_limit}km.")
+            logger.info("[tool:nominatim] REGIONAL HUB detected (importance=%.2f) → radius=%dkm", importance, radius_limit)
 
         # Strategy A: Strict Search ("Place, City")
         full_query = f"{query}, {location_name}"
@@ -79,7 +90,7 @@ def query_places_nominatim(query: str, location_name: str):
         
         # Strategy B: Global Search + Smart Distance Filter
         if not place_loc:
-            print(f"   > Strict search failed. Trying global search for '{query}'...")
+            logger.info("[tool:nominatim] Strict search failed — falling back to global search for '%s'", query)
             time.sleep(1.1)
             # Fetch top 5 global matches
             candidates = geolocator.geocode(query, exactly_one=False, limit=5, timeout=10)
@@ -92,13 +103,13 @@ def query_places_nominatim(query: str, location_name: str):
                     # Check against our DYNAMIC radius
                     if dist <= radius_limit: 
                         place_loc = cand
-                        print(f"   > Found match via global search: {cand.address} ({int(dist)}km away)")
+                        logger.info("[tool:nominatim] Match found: %s (%dkm away)", cand.address, int(dist))
                         break
                     else:
-                        print(f"   > Skipping candidate: {int(dist)}km away (Limit: {radius_limit}km)")
+                        logger.debug("[tool:nominatim] Skipping candidate %dkm away (limit=%dkm)", int(dist), radius_limit)
         
         if not place_loc:
-            print(f"   > No results found for '{query}'")
+            logger.warning("[tool:nominatim] No results found for '%s'", query)
             return []
 
         return [{
@@ -108,7 +119,7 @@ def query_places_nominatim(query: str, location_name: str):
         }]
 
     except Exception as e:
-        print(f"   > Tool Error: {e}")
+        logger.error("[tool:nominatim] Error: %s", e, exc_info=True)
         return []
 
 @tool
@@ -150,7 +161,7 @@ class TravelGraphState(TypedDict):
 # AGENT NODES
 
 def vibe_interpreter_agent(state: TravelGraphState):
-    print(f"--- 1. VIBE AGENT (Analysing {state['destination']}) ---")
+    logger.info("[agent:vibe_interpreter] START — destination='%s' days=%d vibe='%s'", state['destination'], state['duration_days'], state['vibe'])
     
     llm_hero_structured = llm_hero.with_structured_output(KeywordList)
     
@@ -178,7 +189,7 @@ def vibe_interpreter_agent(state: TravelGraphState):
     return {"keywords": response.keywords}
 
 def search_agent(state: TravelGraphState):
-    print("--- 2. SEARCH AGENT ---")
+    logger.info("[agent:search] START — searching %d keywords for '%s'", len(state['keywords']), state['destination'])
     
     location_fixed = state['destination']
     # Minimal normalization if needed
@@ -212,7 +223,7 @@ def search_agent(state: TravelGraphState):
     return {"search_results": final_places}
 
 def itinerary_agent(state: TravelGraphState):
-    print("--- 3. EXECUTING: Itinerary Agent (Llama 3 70B) ---")
+    logger.info("[agent:itinerary] START — synthesising %d verified locations into %d-day plan", len(state['search_results']), state['duration_days'])
     
     prompt = f"""
     You are a professional travel itinerary curator for {state['destination']}.
