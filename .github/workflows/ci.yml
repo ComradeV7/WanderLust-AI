@@ -1,0 +1,83 @@
+name: CI — Test & Eval Pipeline
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    name: Run Pytest Suite (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests with coverage
+        env:
+          GOOGLE_API_KEY: "dummy-key-for-ci"
+          GROQ_API_KEY: "dummy-key-for-ci"
+          ORS_API_KEY: "dummy-key-for-ci"
+        run: |
+          pytest tests/ -v \
+            --cov=main \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --tb=short
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-py${{ matrix.python-version }}
+          path: coverage.xml
+          retention-days: 7
+
+  eval:
+    name: Eval — Heuristic Regression Gate
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run heuristic eval (dry-run)
+        env:
+          GROQ_API_KEY: "dummy-key-for-ci"
+          GOOGLE_API_KEY: "dummy-key-for-ci"
+          ORS_API_KEY: "dummy-key-for-ci"
+        run: |
+          python -m evals.eval_pipeline --heuristic-only --dry-run
+
+      # Skipped on fork PRs where secrets are unavailable
+      - name: Run full LLM judge eval
+        if: ${{ env.GROQ_API_KEY != '' }}
+        env:
+          GROQ_API_KEY:   ${{ secrets.GROQ_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          ORS_API_KEY:    ${{ secrets.ORS_API_KEY }}
+        run: |
+          python -m evals.eval_pipeline
