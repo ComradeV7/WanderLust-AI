@@ -28,3 +28,11 @@ dist/
 Thumbs.db
 
 docker-compose.override.yml
+
+# pytest & coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+*.log
