@@ -1,0 +1,20 @@
+# Development & Testing Dependencies
+# Install with: pip install -r requirements-dev.txt
+
+# Install base requirements first
+-r requirements.txt
+
+# Test runner
+pytest==8.3.4
+
+# Async test support (for FastAPI ASGI tests)
+pytest-asyncio==0.24.0
+
+# ASGI test client (replaces requests for FastAPI testing)
+httpx==0.28.1
+
+# Clean mock/patch fixtures in pytest style
+pytest-mock==3.14.0
+
+# Coverage reporting
+pytest-cov==6.0.0
