@@ -1,10 +1,11 @@
 # Wanderlust AI: Travel Planner Agent
 
-![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python)
+![Python](https://img.shields.io/badge/Python-3.11%20|%203.12-blue?style=for-the-badge&logo=python)
 ![LangGraph](https://img.shields.io/badge/LangGraph-Multi--Agent-orange?style=for-the-badge)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi)
 ![Streamlit](https://img.shields.io/badge/Streamlit-Frontend-FF4B4B?style=for-the-badge&logo=streamlit)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)
+![CI](https://github.com/ComradeV7/WanderLust-AI/actions/workflows/ci.yml/badge.svg)
 
 **Wanderlust AI** is a stateful, multi-agent travel planner that adapts its search strategy based on the destination's scale. Unlike standard travel bots that hallucinate places or treat every city the same, Wanderlust AI verifies locations using real-world geospatial data and adjusts its scope for Megacities versus Regional Hubs.
 
@@ -70,9 +71,10 @@ The system is built on **LangGraph** with a sequential flow:
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/ComradeV7/WanderLust-AI.git
+cd WanderLust-AI
 ```
 
-### 2. Set Environment Variables
+### 2. Create a `.env` file
 ```bash
 GOOGLE_API_KEY=your_google_key
 GROQ_API_KEY=your_groq_key
@@ -81,27 +83,44 @@ ORS_API_KEY=your_openrouteservice_key
 
 ### 3. Install Dependencies
 ```bash
+# Runtime
 pip install -r requirements.txt
+
+# For running tests locally
+pip install -r requirements-dev.txt
 ```
 
 ## Running the App
 
 ### Terminal 1: Backend (FastAPI)
-
 ```bash
 uvicorn main:api --reload
 ```
 
 ### Terminal 2: Frontend (Streamlit)
-
 ```bash
 streamlit run frontend.py
 ```
 
 ---
 
+## Testing
+
+```bash
+# Unit & integration tests with coverage
+pytest tests/ -v --cov=main --cov-report=term-missing
+
+# Heuristic eval (no API keys needed)
+python -m evals.eval_pipeline --heuristic-only --dry-run
+
+# Full eval with LLM judge (requires GROQ_API_KEY)
+python -m evals.eval_pipeline
+```
+
+The CI pipeline runs automatically on every push and pull request via GitHub Actions.
+
+---
+
 ## Result
 
 <img width="1897" height="902" alt="image" src="https://github.com/user-attachments/assets/b4f8134e-ac4d-4f57-bbc8-46f3e150243b" />
-
-
