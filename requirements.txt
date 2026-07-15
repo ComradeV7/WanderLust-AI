@@ -1,11 +1,22 @@
-fastapi
-uvicorn
-python-dotenv
-langgraph
-langchain
-langchain-groq
-langchain-google-genai
-openrouteservice
-geopy
-pydantic
-requests
+# Web Frameworks
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+streamlit==1.39.0
+
+# Environment
+python-dotenv==1.0.1
+
+# LangChain & Agents
+langgraph==0.2.45
+langchain==0.3.7
+langchain-core==0.3.15
+langchain-groq==0.2.1
+langchain-google-genai==2.0.4
+
+# Geospatial
+openrouteservice==2.3.3
+geopy==2.4.1
+
+# Data & Validation
+pydantic==2.9.2
+requests==2.32.3
