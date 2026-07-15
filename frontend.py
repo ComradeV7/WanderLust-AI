@@ -91,16 +91,35 @@ if generate_btn:
         }
         
         try:
-            response = requests.post(f"{API_URL}/plan/start", json=payload)
+            # Test backend connection first
+            try:
+                health_response = requests.get(f"{API_URL}/health", timeout=10)
+                if health_response.status_code != 200:
+                    st.error(f"⚠️ Backend is not responding correctly. Status: {health_response.status_code}")
+                    st.info(f"Backend URL: {API_URL}")
+                    st.stop()
+            except requests.exceptions.RequestException as health_error:
+                st.error(f"❌ Cannot connect to backend at: {API_URL}")
+                st.error(f"Error: {str(health_error)}")
+                st.info("Make sure the backend is deployed and the API_URL environment variable is correct.")
+                st.stop()
+            
+            # Make the actual request
+            response = requests.post(f"{API_URL}/plan/start", json=payload, timeout=120)
             if response.status_code == 200:
                 data = response.json()
                 st.session_state["itinerary"] = data["itinerary_draft"]
                 st.session_state["current_state"] = data["current_state"]
                 st.rerun() # Refresh to show the itinerary
             else:
-                st.error(f"Error: {response.text}")
+                st.error(f"❌ Backend Error (Status {response.status_code})")
+                st.error(f"Response: {response.text}")
+        except requests.exceptions.Timeout:
+            st.error("⏱️ Request timed out. This might be a cold start (first request takes ~30s). Please try again.")
         except Exception as e:
-            st.error(f"Connection Error: Is the backend running? ({e})")
+            st.error(f"❌ Connection Error: {str(e)}")
+            st.info(f"Backend URL: {API_URL}")
+            st.info("Check that the backend is running and the URL is correct.")
 
 # DISPLAY ITINERARY
 if st.session_state["itinerary"]:
@@ -128,17 +147,19 @@ if st.session_state["itinerary"]:
                 }
                 
                 try:
-                    response = requests.post(f"{API_URL}/plan/resume", json=resume_payload)
+                    response = requests.post(f"{API_URL}/plan/resume", json=resume_payload, timeout=120)
                     if response.status_code == 200:
                         data = response.json()
                         st.session_state["itinerary"] = data["itinerary_draft"]
                         st.session_state["current_state"] = data["current_state"]
-                        st.success("Plan updated!")
+                        st.success("✅ Plan updated!")
                         st.rerun()
                     else:
-                        st.error(f"Error: {response.text}")
+                        st.error(f"❌ Error (Status {response.status_code}): {response.text}")
+                except requests.exceptions.Timeout:
+                    st.error("⏱️ Request timed out. Please try again.")
                 except Exception as e:
-                    st.error(f"Connection Error: {e}")
+                    st.error(f"❌ Connection Error: {str(e)}")
 
 else:
     # Empty State (Welcome Message)

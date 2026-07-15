@@ -280,6 +280,17 @@ app = workflow.compile()
 # FASTAPI SERVER
 api = FastAPI(title="Hybrid-Model Travel Planner")
 
+# Add CORS middleware to allow frontend requests
+from fastapi.middleware.cors import CORSMiddleware
+
+api.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 class PlanRequest(BaseModel):
     destination: str
     duration_days: int
@@ -290,6 +301,23 @@ class ResumeRequest(BaseModel):
     current_state: Dict[str, Any]
     user_feedback: str
     place_to_avoid: Optional[str] = None
+
+# Health check endpoint
+@api.get("/")
+def health_check():
+    return {
+        "status": "ok",
+        "service": "WanderLust AI API",
+        "endpoints": {
+            "docs": "/docs",
+            "start_plan": "/plan/start",
+            "resume_plan": "/plan/resume"
+        }
+    }
+
+@api.get("/health")
+def health():
+    return {"status": "healthy"}
 
 @api.post("/plan/start")
 def start_plan(request: PlanRequest):
