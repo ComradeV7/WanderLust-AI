@@ -165,3 +165,17 @@ else:
     # Empty State (Welcome Message)
     st.info("Enter your trip details in the sidebar to get started!")
     
+    # Debug section
+    with st.expander("🔧 Debug Info"):
+        st.write(f"**Backend URL:** `{API_URL}`")
+        if st.button("Test Backend Connection"):
+            try:
+                response = requests.get(f"{API_URL}/health", timeout=10)
+                if response.status_code == 200:
+                    st.success("✅ Backend is online!")
+                    st.json(response.json())
+                else:
+                    st.error(f"❌ Backend returned status {response.status_code}")
+            except Exception as e:
+                st.error(f"❌ Cannot reach backend: {str(e)}")
+                st.warning("Make sure the backend URL is correct in Render environment variables.")
