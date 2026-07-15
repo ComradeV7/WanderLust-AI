@@ -1,0 +1,38 @@
+# Render Blueprint for WanderLust AI
+# This file defines both backend (FastAPI) and frontend (Streamlit)
+
+services:
+  # Backend Service (FastAPI)
+  - type: web
+    name: wanderlust-api
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:api --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: ORS_API_KEY
+        sync: false
+    healthCheckPath: /docs
+
+  # Frontend Service (Streamlit)
+  - type: web
+    name: wanderlust-frontend
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt streamlit
+    startCommand: streamlit run frontend.py --server.port $PORT --server.address 0.0.0.0
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: API_URL
+        value: https://wanderlust-api.onrender.com
