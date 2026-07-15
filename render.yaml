@@ -35,4 +35,4 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: API_URL
-        value: https://wanderlust-api.onrender.com
+        value: https://wanderlust-api-hgjt.onrender.com
