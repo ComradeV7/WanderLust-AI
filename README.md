@@ -92,15 +92,41 @@ pip install -r requirements-dev.txt
 
 ## Running the App
 
-### Terminal 1: Backend (FastAPI)
+### Local Development
+
+#### Terminal 1: Backend (FastAPI)
 ```bash
 uvicorn main:api --reload
 ```
 
-### Terminal 2: Frontend (Streamlit)
+#### Terminal 2: Frontend (Streamlit)
 ```bash
 streamlit run frontend.py
 ```
+
+### Free Deployment (Production)
+
+Deploy your app to the cloud for **FREE** using any of these platforms:
+
+#### Option 1: Render (Recommended)
+```bash
+# One-click deploy using Blueprint
+# See DEPLOYMENT.md for detailed steps
+```
+- ✅ 750 free hours/month
+- ✅ Auto-deploy from GitHub
+- ✅ Backend + Frontend on one platform
+
+#### Option 2: Railway
+- ✅ $5 free credit monthly (~500 hours)
+- ✅ Faster cold starts
+- ✅ Great developer experience
+
+#### Option 3: Streamlit Cloud + Render
+- ✅ Unlimited free Streamlit apps
+- ✅ Best UI performance
+
+**📖 Full deployment guide:** See [DEPLOYMENT.md](./DEPLOYMENT.md)
 
 ---
 
