@@ -72,9 +72,9 @@ jobs:
         run: |
           python -m evals.eval_pipeline --heuristic-only --dry-run
 
-      # Skipped on fork PRs where secrets are unavailable
+      # Full LLM judge eval (requires GitHub Secrets)
       - name: Run full LLM judge eval
-        if: ${{ env.GROQ_API_KEY != '' }}
+        if: ${{ secrets.GROQ_API_KEY != '' }}
         env:
           GROQ_API_KEY:   ${{ secrets.GROQ_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
