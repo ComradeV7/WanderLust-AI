@@ -74,7 +74,7 @@ jobs:
 
       # Full LLM judge eval (requires GitHub Secrets)
       - name: Run full LLM judge eval
-        if: ${{ secrets.GROQ_API_KEY != '' }}
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           GROQ_API_KEY:   ${{ secrets.GROQ_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
